@@ -161,6 +161,10 @@ class FrontController extends Controller
          return view('front.cms',compact('cms'));
     }
 
+    function pricing(){
+        return view('pricing');
+    }
+
     public function add(Request $request)
     {
         $input = $request->all();

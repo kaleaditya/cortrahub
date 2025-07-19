@@ -29,6 +29,32 @@
   <!-- Template Main CSS File -->
   <link href="{{asset('admin')}}/css/style.css" rel="stylesheet">
 
+  <style>
+    .login-type-selector {
+      margin-bottom: 20px;
+    }
+    
+    .login-type-selector .form-select {
+      border-radius: 8px;
+      border: 2px solid #e9ecef;
+      padding: 12px 15px;
+      font-size: 16px;
+      background-color: #fff;
+      transition: all 0.3s ease;
+    }
+    
+    .login-type-selector .form-select:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    .login-type-selector .form-label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 8px;
+    }
+  </style>
+
 </head>
 
 <body>
@@ -51,7 +77,16 @@
               </div>
             @endif
 
-            <form method="POST" action="{{ route('password.email') }}" class="needs-validation" novalidate>
+            <!-- Login Type Selector -->
+            <div class="login-type-selector">
+              <label for="loginType" class="form-label">Reset password for:</label>
+              <select class="form-select" id="loginType" name="loginType">
+                <option value="trainer" selected>Trainer Account</option>
+                <option value="company">Company Account</option>
+              </select>
+            </div>
+
+            <form method="POST" action="{{ route('password.email') }}" id="passwordResetForm" class="needs-validation" novalidate>
               @csrf
 
               <div class="mb-3">
@@ -100,6 +135,33 @@
 
   <!-- Template Main JS File -->
   <script src="{{asset('admin')}}/js/main.js"></script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+      $(document).ready(function() {
+          // Handle login type change
+          $('#loginType').change(function() {
+              var loginType = $(this).val();
+              var form = $('#passwordResetForm');
+              
+              if (loginType === 'company') {
+                  // For now, we'll use the same route but you can create a specific company password reset route
+                  form.attr('action', '{{ route("password.email") }}');
+                  // You can add a hidden field to identify it's for company
+                  if (form.find('input[name="user_type"]').length === 0) {
+                      form.append('<input type="hidden" name="user_type" value="company">');
+                  } else {
+                      form.find('input[name="user_type"]').val('company');
+                  }
+              } else {
+                  form.attr('action', '{{ route("password.email") }}');
+                  if (form.find('input[name="user_type"]').length > 0) {
+                      form.find('input[name="user_type"]').val('trainer');
+                  }
+              }
+          });
+      });
+  </script>
 
 </body>
 

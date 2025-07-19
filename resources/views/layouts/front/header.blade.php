@@ -24,10 +24,36 @@
           </a>
         </div>
 
-        <!-- Bottom Row: Buttons -->
+        <!-- Bottom Row: Welcome Message and Logout OR Login Button -->
         <div class="d-flex justify-content-center justify-content-md-end gap-2">
-          <a href="{{route('register_form')}}" target="_blank" class="btn btn-danger">Register As Trainer</a>
-          <a href="{{route('login')}}" target="_blank" class="btn btn-warning">Login</a>
+          @if(Auth::check())
+            <!-- Logged in User -->
+            <span class="text-white d-flex align-items-center me-3">
+              <i class="bi bi-person-check me-2"></i>Welcome, {{ Auth::user()->name }}!
+            </span>
+            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+              @csrf
+              <button type="submit" class="btn btn-outline-light">
+                <i class="bi bi-box-arrow-right me-2"></i>Logout
+              </button>
+            </form>
+          @elseif(Auth::guard('company')->check())
+            <!-- Logged in Company -->
+            <span class="text-white d-flex align-items-center me-3">
+              <i class="bi bi-building-check me-2"></i>Welcome, {{ Auth::guard('company')->user()->company_name }}!
+            </span>
+            <form action="{{ route('company.logout') }}" method="POST" class="d-inline">
+              @csrf
+              <button type="submit" class="btn btn-outline-light">
+                <i class="bi bi-box-arrow-right me-2"></i>Logout
+              </button>
+            </form>
+          @else
+            <!-- Not logged in - Show Login Button -->
+            <a href="{{route('login')}}" target="_blank" class="btn btn-warning">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Login
+            </a>
+          @endif
         </div>
       </div>
       

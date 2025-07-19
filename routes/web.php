@@ -44,6 +44,7 @@ Route::get('refund-policy', [FrontController::class, 'refund'])->name('refund');
 Route::get('privacy-statement', [FrontController::class, 'privacy'])->name('privacy');
 Route::get('registration-procedures', [FrontController::class, 'registration'])->name('registration');
 Route::get('feedback', [FrontController::class, 'feedback'])->name('feedback');
+Route::get('pricing', [FrontController::class, 'pricing'])->name('pricing');
 Route::get('company_register', [FrontController::class, 'company_register'])->name('company_register');
 Route::POST('company_store', [FrontController::class, 'company_store'])->name('company_store');
 

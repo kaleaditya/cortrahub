@@ -8,6 +8,7 @@
 
 @yield('content')
 
+@if(!Auth::check() && !Auth::guard('company')->check())
  <!-- Call to Action -->
   <section class="py-5 pv-5 wow animate__animated animate__fadeIn" style="background-image: url('{{ asset('assets/images/cta-bg.jpg') }}'); background-size: cover; background-position: top center;">
     <div class="container text-end text-white">
@@ -18,12 +19,14 @@
       </div>
     </div>
   </section>
+@endif
   
 
 @include('layouts.front.footer')
 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 
@@ -32,5 +35,7 @@
     selector: '.glightbox'
   });
 </script>
+
+@stack('scripts')
 </body>
 </html>

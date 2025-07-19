@@ -42,7 +42,7 @@ class CompanyAuthController extends Controller
     {
         $credentials = $request->only('email', 'password');
         if (Auth::guard('company')->attempt($credentials)) {
-            return redirect()->route('company.dashboard');
+            return redirect()->route('front.home');
         }
         return back()->withErrors(['email' => 'Invalid credentials']);
     }
