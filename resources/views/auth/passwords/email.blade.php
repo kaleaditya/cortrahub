@@ -88,6 +88,7 @@
 
             <form method="POST" action="{{ route('password.email') }}" id="passwordResetForm" class="needs-validation" novalidate>
               @csrf
+              <input type="hidden" name="user_type" value="trainer" id="userTypeField">
 
               <div class="mb-3">
                 <label for="email" class="form-label">{{ __('Email Address') }}</label>
@@ -142,23 +143,7 @@
           // Handle login type change
           $('#loginType').change(function() {
               var loginType = $(this).val();
-              var form = $('#passwordResetForm');
-              
-              if (loginType === 'company') {
-                  // For now, we'll use the same route but you can create a specific company password reset route
-                  form.attr('action', '{{ route("password.email") }}');
-                  // You can add a hidden field to identify it's for company
-                  if (form.find('input[name="user_type"]').length === 0) {
-                      form.append('<input type="hidden" name="user_type" value="company">');
-                  } else {
-                      form.find('input[name="user_type"]').val('company');
-                  }
-              } else {
-                  form.attr('action', '{{ route("password.email") }}');
-                  if (form.find('input[name="user_type"]').length > 0) {
-                      form.find('input[name="user_type"]').val('trainer');
-                  }
-              }
+              $('#userTypeField').val(loginType);
           });
       });
   </script>

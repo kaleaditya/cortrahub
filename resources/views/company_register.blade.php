@@ -137,7 +137,7 @@
                     </div>
                     
                        <div class="col-12 text-center">
-                                        <a href="{{ route('company.login') }}" class="small txtBtn">Already have an account? Log in</a>
+                                        <a href="{{ route('login') }}" class="small txtBtn">Already have an account? Log in</a>
                                     </div>
 
                     {{-- <div class="col-12 text-center">

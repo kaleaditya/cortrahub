@@ -3,8 +3,8 @@
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\StateController;
-use App\Http\Controllers\OrderItemController;
-use App\Http\Controllers\ManageOrderController;
+// use App\Http\Controllers\OrderItemController;
+// use App\Http\Controllers\ManageOrderController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
@@ -49,6 +49,20 @@ Route::get('company_register', [FrontController::class, 'company_register'])->na
 Route::POST('company_store', [FrontController::class, 'company_store'])->name('company_store');
 
 Auth::routes();
+
+// Test route for debugging password reset
+Route::get('/test-password-reset', function() {
+    return 'Password reset routes are working!';
+});
+
+// Debug route to test password reset functionality
+Route::post('/debug-password-reset', function(\Illuminate\Http\Request $request) {
+    \Log::info('Debug password reset request received', $request->all());
+    return response()->json([
+        'message' => 'Debug request received',
+        'data' => $request->all()
+    ]);
+});
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::post('front-register', [FrontController::class, 'register'])->name('front.add');
@@ -104,24 +118,24 @@ Route::group(['middleware' => ['auth']], function() {
 
 
     // Order Routes
-    Route::get('order-item', [OrderItemController::class, 'index'])->name('order-item');
-    Route::post('order-item-store', [OrderItemController::class, 'orderItemStore'])->name('order-item-store');
-    Route::get('order-create', [OrderItemController::class, 'orderCreate'])->name('order-create');
-    Route::get('order-delete/{id}', [OrderItemController::class, 'orderDelete'])->name('order-delete');
-    Route::get('order-edit/{id}', [OrderItemController::class, 'orderEdit'])->name('order-edit');
-    Route::post('order-item-update/{id}', [OrderItemController::class, 'orderItemUpdate'])->name('order-item-update');
+    // Route::get('order-item', [OrderItemController::class, 'index'])->name('order-item');
+    // Route::post('order-item-store', [OrderItemController::class, 'orderItemStore'])->name('order-item-store');
+    // Route::get('order-create', [OrderItemController::class, 'orderCreate'])->name('order-create');
+    // Route::get('order-delete/{id}', [OrderItemController::class, 'orderDelete'])->name('order-delete');
+    // Route::get('order-edit/{id}', [OrderItemController::class, 'orderEdit'])->name('order-edit');
+    // Route::post('order-item-update/{id}', [OrderItemController::class, 'orderItemUpdate'])->name('order-item-update');
 
     // Manage Order Routes
-    Route::get('manage-order', [ManageOrderController::class, 'index'])->name('manage-order');
-    Route::get('manage-order-create', [ManageOrderController::class, 'manageOrderCreate'])->name('manage-order-create');
-    Route::post('manage-order-store', [ManageOrderController::class, 'manageOrderStore'])->name('manage-order-store');
-    Route::get('manage-order-delete/{id}', [ManageOrderController::class, 'manageOrderdelete'])->name('manage-order-delete');
-    Route::get('manage-order-edit/{id}', [ManageOrderController::class, 'manageOrderedit'])->name('manage-order-edit');
-    Route::post('manage-order-update/{id}', [ManageOrderController::class, 'manageOrderUpdate'])->name('manage-order-update');
-    Route::get('manage-order-change-status/{id}', [ManageOrderController::class, 'manageOrderChangeStatus'])->name('manage-order-change-status');
-    Route::post('manage-order-status-update/{id}', [ManageOrderController::class, 'manageOrderStatusUpdate'])->name('manage-order-status-update');
-    Route::get('manage-order-import', [ManageOrderController::class, 'manageOrderImport'])->name('manage-order-import');
-    Route::post('manage-order-import-store', [ManageOrderController::class, 'manageOrderImportStore'])->name('manage-order-importStore');
+    // Route::get('manage-order', [ManageOrderController::class, 'index'])->name('manage-order');
+    // Route::get('manage-order-create', [ManageOrderController::class, 'manageOrderCreate'])->name('manage-order-create');
+    // Route::post('manage-order-store', [ManageOrderController::class, 'manageOrderStore'])->name('manage-order-store');
+    // Route::get('manage-order-delete/{id}', [ManageOrderController::class, 'manageOrderdelete'])->name('manage-order-delete');
+    // Route::get('manage-order-edit/{id}', [ManageOrderController::class, 'manageOrderedit'])->name('manage-order-edit');
+    // Route::post('manage-order-update/{id}', [ManageOrderController::class, 'manageOrderUpdate'])->name('manage-order-update');
+    // Route::get('manage-order-change-status/{id}', [ManageOrderController::class, 'manageOrderChangeStatus'])->name('manage-order-change-status');
+    // Route::post('manage-order-status-update/{id}', [ManageOrderController::class, 'manageOrderStatusUpdate'])->name('manage-order-status-update');
+    // Route::get('manage-order-import', [ManageOrderController::class, 'manageOrderImport'])->name('manage-order-import');
+    // Route::post('manage-order-import-store', [ManageOrderController::class, 'manageOrderImportStore'])->name('manage-order-importStore');
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');

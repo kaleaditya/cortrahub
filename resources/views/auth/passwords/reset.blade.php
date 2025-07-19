@@ -62,6 +62,7 @@
                     @csrf
                     <input type="hidden" name="token" value="{{ $token }}">
                     <input type="hidden" name="email" value="{{ $email }}">
+                    <input type="hidden" name="user_type" value="{{ request('user_type', 'trainer') }}">
 
                     <div class="col-12">
                       <label for="yourPassword" class="form-label">{{ __('Password') }}</label>
