@@ -1,0 +1,476 @@
+@font-face {
+	font-family: "YellowPages Light";
+	font-style: normal;
+	font-weight: 700;
+	src: url('font/brand/YellowPages-Light-89210fd010ae554e44b9c93d11b6d8db.eot');
+	src: url('font/brand/YellowPages-Light-89210fd010ae554e44b9c93d11b6d8db.eot?#iefix') format('embedded-opentype'), url('font/brand/YellowPages-Light-713573327ab965102f645b33a8136ee0.woff') format("woff");
+}
+@font-face {
+	font-family: "YellowPages Reg";
+	font-style: normal;
+	font-weight: 700;
+	src: url('font/brand/YellowPages-Reg-f0bd767a336ef9eb4885479a607a1bd4.eot');
+	src: url('font/brand/YellowPages-Reg-f0bd767a336ef9eb4885479a607a1bd4.eot?#iefix') format('embedded-opentype'), url('font/brand/YellowPages-Reg-89f3d9ca892cba2262b2c84165453d41.woff') format("woff");
+}
+@font-face {
+	font-family: "YellowPages Bold";
+	font-style: bold;
+	font-weight: 700;
+	src: url('font/brand/YellowPages-Bold-7594ca68d93d1a1a22e42f50c04bafdf.eot');
+	src: url('font/brand/YellowPages-Bold-7594ca68d93d1a1a22e42f50c04bafdf.eot?#iefix') format('embedded-opentype'), url('font/brand/YellowPages-Bold-80041311f189a5219b49b95427bd9800.woff') format("woff");
+}
+@font-face {
+	font-family: "YellowPages Italic";
+	src: url('font/brand/YellowPages-Italic-03a44ad9a559318d41552775e3d22302.eot');
+	src: url('font/brand/YellowPages-Italic-03a44ad9a559318d41552775e3d22302.eot?#iefix') format('embedded-opentype'), url('font/brand/YellowPages-Italic-b624bd5d69ee892471fee157a83189bc.woff') format("woff");
+}
+@font-face {
+	font-family: "YellowPages LightItalic";
+	src: url('font/brand/YellowPages-LightItalic-90bd5c1fb02befd4eee084e8f0513220.eot');
+	src: url('font/brand/YellowPages-LightItalic-90bd5c1fb02befd4eee084e8f0513220.eot?#iefix') format('embedded-opentype'), url('font/brand/YellowPages-LightItalic-53f4a4919b22e8fc4df405faa64f4a4d.woff') format("woff");
+}
+@font-face {
+	font-family: "YellowPages BoldItalic";
+	src: url('font/brand/YellowPages-BoldItalic-a5b041866ad34b39472a45909f4c26e1.eot');
+	src: url('font/brand/YellowPages-BoldItalic-a5b041866ad34b39472a45909f4c26e1.eot?#iefix') format('embedded-opentype'), url('font/brand/YellowPages-BoldItalic-269e969c9a1fa27693a0942dc6cc68a8.woff') format("woff");
+}
+
+
+
+
+/* Global 
+====================================================================== */
+body {
+	margin: 0;
+	font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+	font-family: "YellowPages Reg";
+	font-size: 14px;
+	line-height: 20px;
+	color: #000;
+	background: #fafafa;
+}
+
+
+/* For Firefox */
+input[type='number'] {
+    -moz-appearance:textfield;
+}
+
+/* Webkit browsers like Safari and Chrome */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+::-moz-selection {
+	background: #333;
+	color: #fff;
+}
+::selection {
+	background: #333;
+	color: #fff;
+}
+
+
+a{
+	text-decoration: none !important;
+	-webkit-transition: all .5s ease-in-out;
+	-moz-transition: all .5s ease-in-out;
+	-ms-transition: all .5s ease-in-out;
+	-o-transition: all .5s ease-in-out;
+	transition: all .5s ease-in-out;
+}
+
+
+
+.delay1{
+	-webkit-animation-delay: .2s;
+	-moz-animation-delay: .2s;
+	-o-animation-delay: .2s;
+	animation-delay: .2s; 
+}
+
+.no-left-right-margin{
+	margin-left: 0;
+	margin-right: 0;
+}
+.no-left-right-padding{
+	padding-left: 0;
+	padding-right: 0;
+}
+.bold{
+	font-weight: bold;
+}
+.underline{
+	text-decoration: underline;
+}
+.dib{
+	display: inline-block;
+}
+.light {
+	font-family: "YellowPages Light";
+	font-style: normal;
+	font-weight: 700;
+}
+.bold {
+	font-family: "YellowPages Bold";
+	font-style: bold;
+	font-weight: 700;
+}
+
+
+/* home */
+.top-section {
+	background-image: -o-linear-gradient(left, #ffce00, #fedb55, #ffce00);
+	background-image: -moz-linear-gradient(left, #ffce00, #fedb55, #ffce00);
+	background-image: -webkit-linear-gradient(left, #ffce00, #fedb55, #ffce00);
+	background-image: -ms-linear-gradient(left, #ffce00, #fedb55, #ffce00);
+	background-image: linear-gradient(to right, #ffce00, #fedb55, #ffce00);
+	
+	padding-top: 20px;
+}
+.top-section .listing-block .block-1 {
+	font-size: 13px;
+}
+.top-section .listing-block .block-1 p a {
+	color: #000;
+}
+.top-section .listing-block .block-1 p a span.glyph {
+	font-size: 22px;
+	margin-top: 10px;
+	margin-right: 7px;
+	vertical-align: sub;
+}
+.search-section {
+	padding-top: 60px;
+	padding-bottom: 120px;
+}
+.search-section .block-1 form .form-control {
+	border: 1px solid #ffcc00;
+	height: auto;
+	padding: 8px 22px;
+	min-width: 240px;
+	font-family: "YellowPages Light";
+	
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
+	
+	-webkit-border-radius: 999px;
+	-moz-border-radius: 999px;
+	border-radius: 999px;
+}
+.category {
+	background: #ffcc00;
+}
+.search-section .block-1 form .btn {
+	background: #ffcc00;
+	font-size: 16px;
+	border: 2px solid #ffffff;
+	width: 39px;
+	height: 39px;
+	padding: 9px;
+	
+	-webkit-border-radius: 999px;
+	-moz-border-radius: 999px;
+	border-radius: 999px;
+}
+.popular-searches-slider-container .rsThumb {
+	width: 122px;
+}
+.popular-searches-slider-container {
+	height: auto;
+}
+.article .article-listing {
+	margin-bottom: 30px;
+}
+.article .article-listing .block-1 {
+	
+}
+.article .article-listing .block-1 img {
+	border: 2px solid #ffcc00;
+	max-width: 100px;
+}
+
+footer {
+	padding-top: 50px;
+	padding-bottom: 30px;
+	background: #ffffff;
+}
+footer .block-1 h1.glyph {
+	font-size: 55px;
+}
+footer .block-1 ul {
+	margin-top: 15px;
+}
+footer .block-1 ul li {
+	padding-bottom: 6px;
+}
+footer .block-1 ul li a {
+	color: #a6a6a6;
+}
+footer .block-1 h4 {
+	font-size: 16px;
+	font-family: "YellowPages Bold", Helvetica, sans-serif;
+	
+}
+
+
+
+
+.backToTop {
+	display: none;
+	position: fixed;
+	bottom: 20px;
+	right: 20px;
+	width: 40px;
+	height: 40px;
+	cursor: pointer;
+	z-index: 10;
+	background: url('../img/back-to-top.png') no-repeat; /* fallback for older browsers */
+	background: url('../img/back-to-top.png') no-repeat;
+	border-radius: 5px;
+}
+
+
+
+/* listing page */
+.top-listing {
+	background: #ffcc00;
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+.top-listing .search-section {
+	padding-top: 15px;
+	padding-bottom: 15px
+}
+.top-listing .search-type .btn {
+	color: #5d530e;
+	border: 1px solid #ffffff;
+	background: transparent;
+	margin-top: 15px;
+}
+.top-listing .search-type .btn.active {
+	background: #ffffff;
+}
+.top-listing .search-type .btn-group>.btn:first-child:not(:last-child):not(.dropdown-toggle) {
+	border-top-left-radius: 99px;
+	border-bottom-left-radius: 99px;
+}
+.top-listing .search-type .btn-group>.btn:last-child:not(:first-child) {
+	border-top-right-radius: 99px;
+	border-bottom-right-radius: 99px;
+}
+.top-listing .login-block {
+	margin-top: 15px;
+}
+.top-listing .login-block {
+	margin-top: 20px;
+}
+.top-listing .login-block a {
+	color: #000;
+}
+.top-listing .login-block ul li a .glyph {
+	font-size: 22px;
+	vertical-align: sub;
+	padding-right: 2px;
+}
+.listing-body {
+	background: #EDEDED;
+	border: 1px solid #E0E0E0;
+	padding-top: 15px;
+	
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+}
+.search-results .block-1 {
+	border-bottom: 1px solid #D9D9D9;
+	font-size: 13px;
+}
+.search-results .block-2 {
+	padding-top: 10px;
+	color: #737373;
+}
+.company-header {
+	background: #ffffff;
+	padding: 15px;
+	border-bottom: 4px solid #dddddd;
+	
+	-webkit-border-radius: 8px 8px 0 0;
+	-moz-border-radius: 8px 8px 0 0;
+	border-radius: 8px 8px 0 0;
+	
+	-webkit-box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.2);
+	-moz-box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.2);
+}
+.company-header a {
+	color: inherit;
+}
+.company-header .comp-logo img {
+	margin-top: 2px;
+	
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+}
+.company-description {
+	background: #ffffff;
+	margin-bottom: 15px;
+	
+	-webkit-box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.2);
+	-moz-box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 1px 2px 1px rgba(0, 0, 0, 0.2);
+	
+	-webkit-border-radius: 0 0 8px 8px;
+	-moz-border-radius: 0 0 8px 8px;
+	border-radius: 0 0 8px 8px;
+}
+.company-description a {
+	color: inherit;
+}
+.company-description .company-content {
+	padding: 15px;
+}
+.rating {
+	margin-bottom: 0;
+}
+.rating span.glyphicon {
+	color: #dddddd;
+	cursor: pointer;
+	font-size: 16px;
+}
+.rating span.glyphicon:hover, .rating span.glyphicon.active {
+	color: #ffd52f;
+}
+.star-rating {
+	line-height: 14px;
+}
+.star-rating .count-long {
+	color: #7f7f7f;
+	font-size: 11px;
+	padding-left: 3px;
+}
+.star-rating span.glyphicon {
+	color: #ffffff;
+	background: #ddd;
+	font-size: 10px;
+	padding: 0px 2px 0px 3px;
+	cursor: pointer;
+	
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+}
+.star-rating span.glyphicon.active {
+	background: #ef7745;
+}
+.company-description .company-content .poi-and-body {
+	color: #007BAC;
+}
+
+.company-contact-details {
+	background: #F7F7F7;
+	border-left: 1px solid #E0E0E0;
+	padding: 15px;
+	
+	-webkit-border-radius: 0 0 8px 0;
+	-moz-border-radius: 0 0 8px 0;
+	border-radius: 0 0 8px 0;
+}
+.company-contact-details a {
+	color: #007BAC;
+}
+.company-contact-details .glyph {
+	color: #007BAC;
+}
+.pro-cat-related {
+	padding-top: 30px;
+	font-family: "YellowPages Reg";
+}
+.pro-cat-related a {
+	color: inherit;
+}
+.pro-cat-related .related-articles {
+	padding-left: 20px;
+}
+.pro-cat-related .related-articles h4 {
+	font-size: 16px;
+	font-family: "YellowPages Bold";
+}
+.pro-cat-related .article-listing {
+	border-bottom: 1px solid #E0E0E0;
+	padding: 25px 15px;
+}
+.pro-cat-related .article-listing .block-1 img {
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+}
+.pro-cat-related .article-listing .block-2 {
+	padding-left: 0;
+}
+
+
+
+
+
+
+
+/* Higher than 1200 (desktop devices)
+====================================================================== */
+@media only screen and (min-width: 1200px) {
+	.container {
+		width: 1260px;
+	}
+}
+
+/* Higher than 960 (desktop devices)
+====================================================================== */
+@media only screen and (min-width: 960px) and (max-width: 1199px) {
+ 
+}
+
+/* Tablet Portrait (devices and browsers)
+====================================================================== */
+@media only screen and (min-width: 768px) and (max-width: 959px) {
+
+}
+
+/* All Mobile Sizes (devices and browser)
+====================================================================== */
+@media only screen and (max-width: 767px) {
+	.popular-searches-slider-container {
+		height: auto;
+	}
+	.flow-layout > .cell {
+		display: -webkit-box;
+	}
+	
+	/* listing page */
+	.company-contact-details {
+		border-left: none;
+		border-top: 1px solid #E0E0E0;
+		height: auto !important;
+		
+		-webkit-border-radius: 0 0 8px 8px;
+		-moz-border-radius: 0 0 8px 8px;
+		border-radius: 0 0 8px 8px;
+	}
+}
+
+/* Mobile Landscape Size to Tablet Portrait (devices and browsers)
+====================================================================== */
+@media only screen and (min-width: 480px) and (max-width: 767px) {
+
+}
+
+/* Mobile Portrait Size to Mobile Landscape Size (devices and browsers)
+=================================================================== */
+@media only screen and (max-width: 479px) {
+
+}
+
+

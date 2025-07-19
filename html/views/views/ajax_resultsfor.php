@@ -1,0 +1,1 @@
+Results for <strong><?=ucwords($category);?> <?if(isset($subcategory) && $subcategory!=''){?> - <?=ucwords($subcategory);?> <?}?></strong>
