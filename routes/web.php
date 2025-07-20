@@ -28,6 +28,7 @@ use App\Http\Controllers\ManageDocumentController;
 
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\CompanyAuthController;
+use App\Http\Controllers\CacheController;
 
 Route::get('/get-states/{country}', [LocationController::class, 'getStates'])->name('location.states');
 Route::get('/get-cities/{state}', [LocationController::class, 'getCities'])->name('location.cities');
@@ -205,8 +206,26 @@ Route::get('company/wishlist', [CompanyAuthController::class, 'wishlist'])->name
 Route::post('company/add-to-list/{trainer}', [CompanyAuthController::class, 'addToList'])->name('company.add_to_list');
 Route::post('company/remove-from-list/{trainer}', [CompanyAuthController::class, 'removeFromList'])->name('company.remove_from_list');
 
+// Company approval routes (admin only)
+Route::post('admin/company/send-approval-email/{id}', [CompanyAuthController::class, 'sendApprovalEmail'])->name('admin.company.send_approval_email')->middleware('auth');
+
 // Checkout/Enquiry page
 Route::get('company/program-enquiry', [CompanyAuthController::class, 'showEnquiryForm'])->name('company.program_enquiry');
 Route::post('company/program-enquiry', [CompanyAuthController::class, 'submitEnquiry'])->name('company.submit_enquiry');
 
 Route::get('admin/company-shortlists', [App\Http\Controllers\Admin\CompanyShortlistController::class, 'index'])->name('admin.company_shortlists');
+
+// Cache Management Routes
+Route::get('/cache/clear-all', [CacheController::class, 'clearAll'])->name('cache.clear.all');
+Route::post('/cache/clear-specific', [CacheController::class, 'clearSpecific'])->name('cache.clear.specific');
+Route::get('/cache/status', [CacheController::class, 'status'])->name('cache.status');
+
+// Protected cache routes (require authentication)
+Route::group(['middleware' => ['auth']], function() {
+    Route::get('/admin/cache', function() {
+        return view('cache.index');
+    })->name('admin.cache.index');
+    Route::get('/admin/cache/clear-all', [CacheController::class, 'clearAll'])->name('admin.cache.clear.all');
+    Route::post('/admin/cache/clear-specific', [CacheController::class, 'clearSpecific'])->name('admin.cache.clear.specific');
+    Route::get('/admin/cache/status', [CacheController::class, 'status'])->name('admin.cache.status');
+});

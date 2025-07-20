@@ -231,6 +231,7 @@
                     <th>Designation</th>
                     <th>Mobile</th>
                     <th>website</th>
+                    <th>Send-Email</th>
                     <th>Action</th>
                 </tr>
                 </thead>
@@ -244,6 +245,17 @@
                         <td><span class="mobileShow">Designation :</span> {{ $item->designation }}</td>
                         <td><span class="mobileShow">Mobile :</span> {{ $item->phone }}</td>
                         <td><span class="mobileShow">website :</span> {{ $item->website }}</td>
+                        <td>
+                            @if($item->status === 'pending')
+                                <button type="button" class="btn btn-warning btn-sm" onclick="sendApprovalEmail({{ $item->id }})">
+                                    Pending
+                                </button>
+                            @else
+                                <button type="button" class="btn btn-success btn-sm" disabled>
+                                    Sent
+                                </button>
+                            @endif
+                        </td>
                         <td>
                             <div class="ThreeBtns">
                             <a href="{{ route('company.show',$item->id) }}" class="btn btn-outline-success btn-sm bi bi-eye-fill"></a>
@@ -299,6 +311,49 @@
         }
     });
 });
+
+function sendApprovalEmail(companyId) {
+    if (!confirm('Are you sure you want to send approval email to this company?')) {
+        return;
+    }
+    
+    // Show loading state
+    const button = event.target;
+    const originalText = button.innerHTML;
+    button.innerHTML = 'Sending...';
+    button.disabled = true;
+    
+    // Send AJAX request
+    $.ajax({
+        url: '{{ route("admin.company.send_approval_email", ":id") }}'.replace(':id', companyId),
+        type: 'POST',
+        data: {
+            _token: '{{ csrf_token() }}'
+        },
+        success: function(response) {
+            if (response.success) {
+                // Update button to show "Sent" status
+                button.innerHTML = 'Sent';
+                button.className = 'btn btn-success btn-sm';
+                button.disabled = true;
+                
+                // Show success message
+                alert('Approval email sent successfully!');
+            } else {
+                alert('Error: ' + response.message);
+                // Reset button
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        },
+        error: function(xhr) {
+            alert('Error sending email. Please try again.');
+            // Reset button
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }
+    });
+}
   </script>
 @endsection
 

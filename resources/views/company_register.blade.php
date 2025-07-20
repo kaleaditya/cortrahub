@@ -90,18 +90,9 @@
                     </div>
                     
                      <div class="col-12">
-                        <label for="password" class="form-label">Password</label>
-                        <div class="input-group has-validation inPtGp">
-                            <input id="password" type="password" name="password" class="form-control setPd" required >
-                            @error('password')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <label for="password_confirmation" class="form-label">Confirm Password</label>
-                        <div class="input-group has-validation inPtGp">
-                            <input id="password_confirmation" type="password" name="password_confirmation" class="form-control setPd" required >
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Note:</strong> Your registration will be reviewed by our admin team. You will receive login credentials via email once approved.
                         </div>
                     </div>
                     <div class="col-12">

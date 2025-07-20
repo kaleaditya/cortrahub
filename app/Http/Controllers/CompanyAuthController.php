@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Company;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\CompanyApprovalMail;
 
 class CompanyAuthController extends Controller
 {
@@ -19,18 +21,27 @@ class CompanyAuthController extends Controller
             'company_name' => 'required',
             'your_name' => 'required',
             'email' => 'required|email|unique:companies',
-            'password' => 'required|confirmed|min:6',
             'designation' => 'nullable',
             'mobile' => 'nullable',
             'website' => 'nullable',
         ]);
+        
+        // Generate temporary password and username
+        $tempPassword = '12345678';
+        $username = $data['email'];
+        
         $data['contact_name'] = $data['your_name'];
         unset($data['your_name']);
         $data['phone'] = $data['mobile'] ?? null;
         unset($data['mobile']);
-        $data['password'] = bcrypt($data['password']);
+        $data['password'] = bcrypt($tempPassword);
+        $data['username'] = $username;
+        $data['show_password'] = $tempPassword;
+        $data['status'] = 'pending';
+        
         Company::create($data);
-        return redirect()->route('company.login')->with('success', 'Registered!');
+        
+        return redirect()->route('company.login')->with('success', 'Registration submitted successfully! Please wait for admin approval. You will receive login credentials via email once approved.');
     }
 
     public function showLoginForm()
@@ -41,9 +52,22 @@ class CompanyAuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
+        
+        // Check if company exists and is approved
+        $company = Company::where('email', $credentials['email'])->first();
+        
+        if (!$company) {
+            return back()->withErrors(['email' => 'Invalid credentials']);
+        }
+        
+        if ($company->status === 'pending') {
+            return back()->withErrors(['email' => 'Your registration is pending approval. Please wait for admin approval and check your email for login credentials.']);
+        }
+        
         if (Auth::guard('company')->attempt($credentials)) {
             return redirect()->route('front.home');
         }
+        
         return back()->withErrors(['email' => 'Invalid credentials']);
     }
 
@@ -59,6 +83,54 @@ class CompanyAuthController extends Controller
         // You can pass wishlist data here in the future
         return view('company_wishlist', compact('company'));
     }
+
+    /**
+     * Send approval email to company
+     */
+    public function sendApprovalEmail($id)
+    {
+        try {
+            $company = Company::findOrFail($id);
+            
+            if ($company->status === 'sent') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email has already been sent to this company.'
+                ]);
+            }
+            
+            // Generate new password for security
+            $newPassword = '12345678';
+            $username = $company->email;
+            
+            // Update company with new credentials
+            $company->update([
+                'password' => bcrypt($newPassword),
+                'show_password' => $newPassword,
+                'username' => $username,
+                'status' => 'sent',
+                'email_sent_at' => now()
+            ]);
+            
+            // Send email
+            Mail::to($company->email)->send(new CompanyApprovalMail($company, $username, $newPassword));
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Approval email sent successfully to ' . $company->email
+            ]);
+            
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error sending email: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+
     public function addToList(Request $request, $trainerId) {
         $company = Auth::guard('company')->user();
         $company->trainers()->syncWithoutDetaching([$trainerId]);

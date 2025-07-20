@@ -19,7 +19,11 @@ class Company extends Authenticatable
         'password',
         'designation',
         'phone',
-        'website'
+        'website',
+        'status',
+        'username',
+        'show_password',
+        'email_sent_at'
     ];
 
     protected $hidden = ['password'];
