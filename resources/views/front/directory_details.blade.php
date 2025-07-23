@@ -24,9 +24,14 @@
             
         <a href="{{ $user->linkedin }}" target="_blank" class="btn btn-sm btn-primary me-2 mb-2">LinkedIn</a>
         <a href="{{ $user->youtube }}" target="_blank" class="btn btn-sm btn-warning me-2 mb-2">Video Channel</a>
-        <button type="button" class="btn btn-sm btn-danger mb-2" data-bs-toggle="modal" data-bs-target="#introVideoModal">
+        <button type="button" class="btn btn-sm btn-danger me-2 mb-2" data-bs-toggle="modal" data-bs-target="#introVideoModal">
   Watch Introduction Video
 </button>
+        @if(Auth::guard('company')->check())
+        <button class="btn btn-sm btn-success mb-2" id="addToListBtn" data-trainer-id="{{ $user->id }}">
+          <i class="bi bi-plus-circle me-1"></i>Add to List
+        </button>
+        @endif
 
             <!-- Introduction Video Modal -->
 <div class="modal fade" id="introVideoModal" tabindex="-1" aria-labelledby="introVideoModalLabel" aria-hidden="true">
@@ -91,39 +96,7 @@
             <button class="nav-link" id="downloads-tab" data-bs-toggle="tab" data-bs-target="#downloads" type="button" role="tab">Profile</button>
           </li>
         </ul>
-        @if(Auth::guard('company')->check())
-        <div class="d-flex justify-content-end mb-3">
-        <button class="btn btn-danger" id="addToListBtn" data-trainer-id="{{ $user->id }}">Add to List</button>
-        </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const btn = document.getElementById('addToListBtn');
-            if (btn) {
-                btn.addEventListener('click', function() {
-                    const trainerId = btn.getAttribute('data-trainer-id');
-                    fetch("{{ url('company/add-to-list') }}/" + trainerId, {
-                        method: "POST",
-                        headers: {
-                            "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                            "Accept": "application/json",
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({})
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            btn.textContent = "Added!";
-                            btn.disabled = true;
-                        } else {
-                            alert(data.message || "Error adding to list.");
-                        }
-                    });
-                });
-            }
-        });
-    </script>
-@endif
+
 
 
         <!-- @if(Auth::guard('company')->check()) -->
@@ -207,4 +180,54 @@
   </div>
 </div>
 
+@if(Auth::guard('company')->check())
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btn = document.getElementById('addToListBtn');
+        if (btn) {
+            btn.addEventListener('click', function() {
+                const trainerId = btn.getAttribute('data-trainer-id');
+                const originalText = btn.innerHTML;
+                
+                // Disable button and show loading
+                btn.disabled = true;
+                btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Adding...';
+                
+                fetch("{{ url('company/add-to-list') }}/" + trainerId, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                        "Accept": "application/json",
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Added!';
+                        btn.classList.remove('btn-success');
+                        btn.classList.add('btn-secondary');
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.disabled = false;
+                            btn.classList.remove('btn-secondary');
+                            btn.classList.add('btn-success');
+                        }, 2000);
+                    } else {
+                        alert(data.message || "Error adding to list.");
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                })
+                .catch(error => {
+                    alert('Error adding trainer to list.');
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                });
+            });
+        }
+    });
+</script>
+@endif
 @endsection

@@ -210,10 +210,30 @@ Route::post('company/remove-from-list/{trainer}', [CompanyAuthController::class,
 Route::post('admin/company/send-approval-email/{id}', [CompanyAuthController::class, 'sendApprovalEmail'])->name('admin.company.send_approval_email')->middleware('auth');
 
 // Checkout/Enquiry page
-Route::get('company/program-enquiry', [CompanyAuthController::class, 'showEnquiryForm'])->name('company.program_enquiry');
-Route::post('company/program-enquiry', [CompanyAuthController::class, 'submitEnquiry'])->name('company.submit_enquiry');
+Route::get('company/program-enquiry', [CompanyAuthController::class, 'showEnquiryForm'])->name('company.program_enquiry')->middleware('auth:company');
+Route::post('company/program-enquiry', [CompanyAuthController::class, 'submitEnquiry'])->name('company.submit_enquiry')->middleware('auth:company');
+Route::post('company/send-enquiry-to-admin', [CompanyAuthController::class, 'sendEnquiryToAdmin'])->name('company.send_enquiry_to_admin')->middleware('auth:company');
+
+// Test route for debugging
+Route::get('test-program-enquiry', function() {
+    return 'Program enquiry route is working!';
+})->name('test.program_enquiry');
+
+// Temporary route without auth for testing
+Route::get('company/program-enquiry-test', [CompanyAuthController::class, 'showEnquiryForm'])->name('company.program_enquiry_test');
+
+// Send wishlist to admin
+Route::post('company/send-wishlist-to-admin', [CompanyAuthController::class, 'sendWishlistToAdmin'])->name('company.send_wishlist_to_admin');
 
 Route::get('admin/company-shortlists', [App\Http\Controllers\Admin\CompanyShortlistController::class, 'index'])->name('admin.company_shortlists');
+
+// Admin Program Enquiries Routes
+Route::group(['middleware' => ['auth'], 'prefix' => 'admin'], function() {
+    Route::get('program-enquiries', [App\Http\Controllers\Admin\ProgramEnquiryController::class, 'index'])->name('admin.program_enquiries.index');
+    Route::get('program-enquiries/{id}', [App\Http\Controllers\Admin\ProgramEnquiryController::class, 'show'])->name('admin.program_enquiries.show');
+    Route::post('program-enquiries/{id}/send-email', [App\Http\Controllers\Admin\ProgramEnquiryController::class, 'sendEmailToTrainer'])->name('admin.program_enquiries.send_email');
+    Route::post('program-enquiries/{id}/update-status', [App\Http\Controllers\Admin\ProgramEnquiryController::class, 'updateStatus'])->name('admin.program_enquiries.update_status');
+});
 
 // Cache Management Routes
 Route::get('/cache/clear-all', [CacheController::class, 'clearAll'])->name('cache.clear.all');

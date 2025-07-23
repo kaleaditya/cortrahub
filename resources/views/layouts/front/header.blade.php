@@ -42,6 +42,9 @@
             <span class="text-white d-flex align-items-center me-3">
               <i class="bi bi-building-check me-2"></i>Welcome, {{ Auth::guard('company')->user()->company_name }}!
             </span>
+            <a href="{{ route('company.program_enquiry') }}" class="btn btn-success me-2">
+              <i class="bi bi-list-check me-2"></i>Go to List
+            </a>
             <form action="{{ route('company.logout') }}" method="POST" class="d-inline">
               @csrf
               <button type="submit" class="btn btn-outline-light">

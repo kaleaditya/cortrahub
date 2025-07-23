@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Company;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\CompanyApprovalMail;
+use App\Mail\CompanyWishlistAdminMail;
+use App\Mail\ProgramEnquiryAdminMail;
 
 class CompanyAuthController extends Controller
 {
@@ -144,9 +147,36 @@ class CompanyAuthController extends Controller
     }
 
     public function showEnquiryForm() {
-        $company = Auth::guard('company')->user();
-        $shortlistedTrainers = $company->trainers;
-        return view('company.program_enquiry', compact('company', 'shortlistedTrainers'));
+        try {
+            $company = Auth::guard('company')->user();
+            
+            if (!$company) {
+                // For testing without auth
+                $company = Company::first();
+                if (!$company) {
+                    return response('No company found for testing', 500);
+                }
+            }
+            
+            $shortlistedTrainers = $company->trainers()->with('roles', 'city_info')->get();
+            
+            // Group trainers by category
+            $trainersByCategory = [];
+            foreach ($shortlistedTrainers as $trainer) {
+                $role = $trainer->roles->first();
+                if ($role) {
+                    $categoryName = $role->name;
+                    if (!isset($trainersByCategory[$categoryName])) {
+                        $trainersByCategory[$categoryName] = [];
+                    }
+                    $trainersByCategory[$categoryName][] = $trainer;
+                }
+            }
+            
+            return view('company.program_enquiry', compact('company', 'shortlistedTrainers', 'trainersByCategory'));
+        } catch (\Exception $e) {
+            return response('Error: ' . $e->getMessage(), 500);
+        }
     }
 
     public function submitEnquiry(Request $request) {
@@ -159,13 +189,101 @@ class CompanyAuthController extends Controller
             'attendees' => ['required', 'integer', 'min:1', 'max:1000'],
             'budget' => ['nullable', 'numeric', 'min:0'],
             'program_brief' => ['required', 'string', 'min:10', 'max:2000'],
+            'selected_category' => ['required', 'string'],
+            'selected_trainers' => ['required', 'string'], // JSON string
             'pdf' => ['nullable', 'file', 'mimes:pdf', 'max:5120'], // 5MB
         ]);
-        // Save to DB or send email as needed
-        // ...
-        // Send email to all shortlisted trainers
-        $shortlistedTrainers = $company->trainers;
-        $pdf = $request->file('pdf');
+        
+        // Handle PDF upload
+        $pdfPath = null;
+        if ($request->hasFile('pdf')) {
+            $pdf = $request->file('pdf');
+            $pdfPath = $pdf->store('program_enquiries', 'public');
+        }
+        
+        // Parse selected trainers
+        $selectedTrainers = json_decode($data['selected_trainers'], true);
+        
+        if (empty($selectedTrainers)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No trainers selected. Please select at least one trainer.'
+            ]);
+        }
+        
+        // Save enquiry to database
+        $enquiry = \App\Models\ProgramEnquiry::create([
+            'company_id' => $company->id,
+            'selected_category' => $data['selected_category'],
+            'date' => $data['date'],
+            'location' => $data['location'],
+            'duration' => $data['duration'],
+            'start_time' => $data['start_time'],
+            'attendees' => $data['attendees'],
+            'budget' => $data['budget'],
+            'program_brief' => $data['program_brief'],
+            'pdf_path' => $pdfPath,
+            'selected_trainers' => $selectedTrainers,
+            'status' => 'pending'
+        ]);
+        
+        // Send email to admin only (not to trainers)
+        try {
+            $adminEmail = config('mail.admin_email');
+            $details = [
+                'date' => $data['date'],
+                'location' => $data['location'],
+                'duration' => $data['duration'],
+                'start_time' => $data['start_time'],
+                'attendees' => $data['attendees'],
+                'budget' => $data['budget'] ?? '',
+                'program_brief' => $data['program_brief'],
+                'selected_category' => $data['selected_category'],
+                'enquiry_id' => $enquiry->id
+            ];
+            $trainerIds = array_column($selectedTrainers, 'id');
+            $trainers = \App\Models\User::whereIn('id', $trainerIds)->with('city_info')->get();
+            \Mail::to($adminEmail)->send(new \App\Mail\ProgramEnquiryAdminMail($company, $trainers, $details, $request->file('pdf')));
+            return response()->json([
+                'success' => true,
+                'message' => 'Program enquiry saved and email sent to admin successfully! Admin will review and contact the trainers.'
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Enquiry email error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Enquiry saved, but failed to send email to admin: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function sendEnquiryToAdmin(Request $request) {
+        $company = Auth::guard('company')->user();
+        $data = $request->validate([
+            'date' => ['required', 'date', 'after_or_equal:today'],
+            'location' => ['required', 'string', 'max:255'],
+            'duration' => ['required', 'numeric', 'min:1', 'max:24'],
+            'start_time' => ['required', 'date_format:H:i'],
+            'attendees' => ['required', 'integer', 'min:1', 'max:1000'],
+            'budget' => ['nullable', 'numeric', 'min:0'],
+            'program_brief' => ['required', 'string', 'min:10', 'max:2000'],
+            'selected_category' => ['required', 'string'],
+            'selected_trainers' => ['required', 'string'], // JSON string
+            'pdf' => ['nullable', 'file', 'mimes:pdf', 'max:5120'], // 5MB
+        ]);
+        
+        // Parse selected trainers
+        $selectedTrainers = json_decode($data['selected_trainers'], true);
+        if (empty($selectedTrainers)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No trainers selected. Please select at least one trainer.'
+            ]);
+        }
+        // Get trainer details for admin email
+        $trainerIds = array_column($selectedTrainers, 'id');
+        $trainers = \App\Models\User::whereIn('id', $trainerIds)->with('city_info')->get();
+        $adminEmail = config('mail.admin_email');
         $details = [
             'date' => $data['date'],
             'location' => $data['location'],
@@ -173,26 +291,54 @@ class CompanyAuthController extends Controller
             'start_time' => $data['start_time'],
             'attendees' => $data['attendees'],
             'budget' => $data['budget'] ?? '',
-            'program_brief' => $data['program_brief'] ?? '',
+            'program_brief' => $data['program_brief'],
+            'selected_category' => $data['selected_category'],
+            'enquiry_id' => $request->enquiry_id ?? null
         ];
-        foreach ($shortlistedTrainers as $trainer) {
-            \Mail::to($trainer->email)->send(new \App\Mail\ProgramEnquiryTrainerMail($trainer, $company, $details, $pdf));
+        \Mail::to($adminEmail)->send(new \App\Mail\ProgramEnquiryAdminMail($company, $trainers, $details, $request->file('pdf')));
+        return response()->json([
+            'success' => true,
+            'message' => 'Enquiry sent to admin successfully! Admin will review and contact the trainers.'
+        ]);
+    }
 
-            \App\Models\EmailLog::create([
-                'company_id' => $company->id,
-                'trainer_id' => $trainer->id,
-                'to_email' => $trainer->email,
-                'subject' => 'You have a new Program Enquiry from ' . $company->company_name,
-                'body' => view('emails.trainer_program_enquiry', [
-                    'trainer' => $trainer,
-                    'company' => $company,
-                    'details' => $details,
-                    'pdf' => $pdf
-                ])->render(),
-                'pdf_name' => $pdf ? $pdf->getClientOriginalName() : null,
+    public function sendWishlistToAdmin(Request $request)
+    {
+        $company = Auth::guard('company')->user();
+        $shortlistedTrainers = $company->trainers()->with('roles', 'city_info')->get();
+        
+        if ($shortlistedTrainers->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No trainers in your wishlist. Please add trainers first.'
             ]);
         }
-        return back()->with('success', 'Enquiry submitted and emails sent to trainers!');
+        
+        // Group trainers by category
+        $trainersByCategory = [];
+        foreach ($shortlistedTrainers as $trainer) {
+            $role = $trainer->roles->first();
+            if ($role) {
+                $categoryName = $role->name;
+                if (!isset($trainersByCategory[$categoryName])) {
+                    $trainersByCategory[$categoryName] = [];
+                }
+                $trainersByCategory[$categoryName][] = $trainer;
+            }
+        }
+        
+        // Send category-wise emails to admin
+       // $adminEmail = 'urjamediain@gmail.com';
+        $adminEmail = 'patel.jignesh293@gmail.com';
+        
+        foreach ($trainersByCategory as $category => $trainers) {
+            Mail::to($adminEmail)->send(new CompanyWishlistAdminMail($company, $trainers, $category));
+        }
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Wishlist sent to admin successfully! Category-wise emails sent for ' . count($trainersByCategory) . ' categories.'
+        ]);
     }
 
     public function logout(Request $request)

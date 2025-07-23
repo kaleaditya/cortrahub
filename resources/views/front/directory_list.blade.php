@@ -86,7 +86,14 @@
                   </h6>
                  
                 <p class="text-danger">{{ $role->name }} Trainer</p>
-                  <a href="{{ route('directory.details', $user->slug) }}" class="btn btn-sm btn-danger">Know More</a>
+                  <div class="d-flex gap-2 justify-content-center">
+                    <a href="{{ route('directory.details', $user->slug) }}" class="btn btn-sm btn-danger">Know More</a>
+                    @if(Auth::guard('company')->check())
+                      <button class="btn btn-sm btn-success add-to-list-btn" data-trainer-id="{{ $user->id }}">
+                        <i class="bi bi-plus-circle"></i> Add to List
+                      </button>
+                    @endif
+                  </div>
                 </div>
               </div>
             </div>
@@ -128,6 +135,52 @@
 
   let selectedState = "{{ request('state_id') }}";
 let selectedCity  = "{{ request('city_id') }}";
+
+// Add to List functionality for company users
+document.querySelectorAll('.add-to-list-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const trainerId = btn.getAttribute('data-trainer-id');
+        const originalText = btn.innerHTML;
+        
+        // Disable button and show loading
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Adding...';
+        
+        fetch("{{ url('company/add-to-list') }}/" + trainerId, {
+            method: "POST",
+            headers: {
+                "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                btn.innerHTML = '<i class="bi bi-check-circle"></i> Added!';
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-secondary');
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    btn.classList.remove('btn-secondary');
+                    btn.classList.add('btn-success');
+                }, 2000);
+            } else {
+                alert(data.message || "Error adding to list.");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            alert('Error adding trainer to list.');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+    });
+});
 
 
 

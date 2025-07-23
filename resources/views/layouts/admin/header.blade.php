@@ -60,6 +60,14 @@
         <nav class="header-nav">
         <p class="chngTxt">{{$pageTitle}}</p>
         <ul class="d-flex align-items-center">
+            
+            @if(Auth::guard('company')->check())
+            <li class="nav-item me-3">
+                <a href="{{ route('company.program_enquiry') }}" class="btn btn-success btn-sm">
+                    <i class="bi bi-list-check"></i> Go to List
+                </a>
+            </li>
+            @endif
 
             <li class="nav-item d-none d-lg-none">
             <a class="nav-link nav-icon search-bar-toggle " href="#">
