@@ -33,7 +33,7 @@
 
 
 
-@include('layouts.admin.sidebaar')
+@include('layouts.admin.sidebar')
 
 
   <main id="main" class="main">
