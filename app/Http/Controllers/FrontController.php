@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use App\Models\RoleInfo;
 use App\Models\Countries;
 use App\Models\Experience;
@@ -88,9 +89,16 @@ class FrontController extends Controller
         // Featured users for both roles
         $feacherdUsers = User::role($roleNames)->where('is_featured', '1')->get();
 
+        // Get company's shortlisted trainers if logged in
+        $shortlistedTrainerIds = collect();
+        if (Auth::guard('company')->check()) {
+            $company = Auth::guard('company')->user();
+            $shortlistedTrainerIds = $company->trainers()->pluck('trainer_id');
+        }
+
         return view('front.directory_list', compact(
             'role', 'slug', 'users', 'feacherdUsers',
-            'countries', 'categories', 'experience', 'languages'
+            'countries', 'categories', 'experience', 'languages', 'shortlistedTrainerIds'
         ));
     }
 
@@ -116,8 +124,16 @@ class FrontController extends Controller
             $certificates = UserImage::where('user_id',$user->id)->get();
             $videoGallery = VideoGallery::where('user_id',$user->id)->get();
             $documents = ManageDocument::where('user_id',$user->id)->get();
+            
+            // Check if trainer is already in company's list
+            $isInList = false;
+            if (Auth::guard('company')->check()) {
+                $company = Auth::guard('company')->user();
+                $isInList = $company->trainers()->where('trainer_id', $user->id)->exists();
+            }
+            
             // return $certificates;
-        return view('front.directory_details',compact('user','feacherdUsers','videoGallery','certificates','documents'));
+        return view('front.directory_details',compact('user','feacherdUsers','videoGallery','certificates','documents','isInList'));
     }
     function directoryDirectory(){
         return "comming soon...";

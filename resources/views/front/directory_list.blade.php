@@ -89,9 +89,15 @@
                   <div class="d-flex gap-2 justify-content-center">
                     <a href="{{ route('directory.details', $user->slug) }}" class="btn btn-sm btn-danger">Know More</a>
                     @if(Auth::guard('company')->check())
-                      <button class="btn btn-sm btn-success add-to-list-btn" data-trainer-id="{{ $user->id }}">
-                        <i class="bi bi-plus-circle"></i> Add to List
-                      </button>
+                      @if($shortlistedTrainerIds->contains($user->id))
+                        <button class="btn btn-sm btn-secondary" disabled>
+                          <i class="bi bi-check-circle"></i> Added
+                        </button>
+                      @else
+                        <button class="btn btn-sm btn-success add-to-list-btn" data-trainer-id="{{ $user->id }}">
+                          <i class="bi bi-plus-circle"></i> Add to List
+                        </button>
+                      @endif
                     @endif
                   </div>
                 </div>
@@ -162,12 +168,8 @@ document.querySelectorAll('.add-to-list-btn').forEach(function(btn) {
                 btn.innerHTML = '<i class="bi bi-check-circle"></i> Added!';
                 btn.classList.remove('btn-success');
                 btn.classList.add('btn-secondary');
-                setTimeout(() => {
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    btn.classList.remove('btn-secondary');
-                    btn.classList.add('btn-success');
-                }, 2000);
+                btn.disabled = true;
+                // Remove the setTimeout to keep button disabled permanently
             } else {
                 alert(data.message || "Error adding to list.");
                 btn.innerHTML = originalText;

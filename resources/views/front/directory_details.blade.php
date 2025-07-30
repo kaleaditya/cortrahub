@@ -28,9 +28,15 @@
   Watch Introduction Video
 </button>
         @if(Auth::guard('company')->check())
-        <button class="btn btn-sm btn-success mb-2" id="addToListBtn" data-trainer-id="{{ $user->id }}">
-          <i class="bi bi-plus-circle me-1"></i>Add to List
-        </button>
+          @if($isInList)
+            <button class="btn btn-sm btn-secondary mb-2" disabled>
+              <i class="bi bi-check-circle me-1"></i>Added
+            </button>
+          @else
+            <button class="btn btn-sm btn-success mb-2" id="addToListBtn" data-trainer-id="{{ $user->id }}">
+              <i class="bi bi-plus-circle me-1"></i>Add to List
+            </button>
+          @endif
         @endif
 
             <!-- Introduction Video Modal -->
@@ -208,12 +214,8 @@
                         btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Added!';
                         btn.classList.remove('btn-success');
                         btn.classList.add('btn-secondary');
-                        setTimeout(() => {
-                            btn.innerHTML = originalText;
-                            btn.disabled = false;
-                            btn.classList.remove('btn-secondary');
-                            btn.classList.add('btn-success');
-                        }, 2000);
+                        btn.disabled = true;
+                        // Remove the setTimeout to keep button disabled permanently
                     } else {
                         alert(data.message || "Error adding to list.");
                         btn.innerHTML = originalText;

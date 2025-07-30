@@ -195,6 +195,29 @@
             transform: translateY(-3px);
         }
 
+        .category-selection-card {
+            background: #fff;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .category-selection-card:hover {
+            border-color: #F39231;
+            box-shadow: 0 4px 12px rgba(243, 146, 49, 0.15);
+        }
+
+        .category-selection-card .form-check-input:checked + .form-check-label {
+            color: #F39231;
+            font-weight: bold;
+        }
+
+        .category-selection-card .form-check-input:checked {
+            border-color: #F39231;
+            background-color: #F39231;
+        }
+
         /* Form Styles */
         .form-control, .form-select {
             border: 2px solid #ddd;
@@ -290,6 +313,33 @@
             .section-title {
                 font-size: 22px;
             }
+        }
+
+        /* Loader Styles */
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loader-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
         }
     </style>
 </head>
@@ -393,14 +443,25 @@
                             </h5>
                             <div class="row">
                                 @foreach($trainersByCategory as $category => $trainers)
-                                <div class="col-md-3 mb-3">
-                                    <div class="form-check">
-                                        <input class="form-check-input category-radio" type="radio" name="selected_category" 
-                                               id="category_{{ $loop->index }}" value="{{ $category }}" 
-                                               data-category="{{ $category }}" data-count="{{ count($trainers) }}">
-                                        <label class="form-check-label fw-bold" for="category_{{ $loop->index }}">
-                                            {{ $category }} ({{ count($trainers) }} trainers)
-                                        </label>
+                                <div class="col-md-6 mb-3">
+                                    <div class="d-flex align-items-center justify-content-between p-3 category-selection-card">
+                                        <div class="form-check">
+                                            <input class="form-check-input category-radio" type="radio" name="selected_category" 
+                                                   id="category_{{ $loop->index }}" value="{{ $category }}" 
+                                                   data-category="{{ $category }}" data-count="{{ count($trainers) }}">
+                                            <label class="form-check-label fw-bold" for="category_{{ $loop->index }}">
+                                                {{ $category }} ({{ count($trainers) }} trainers)
+                                            </label>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a href="/directory-list/{{ strtolower(str_replace(' ', '-', $category)) }}" 
+                                               class="btn btn-sm btn-outline-primary" target="_blank">
+                                                <i class="bi bi-funnel me-1"></i>Add More
+                                            </a>
+                                            <a href="/" class="btn btn-sm btn-outline-success" target="_blank">
+                                                <i class="bi bi-plus-circle me-1"></i>Add Trainer
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                                 @endforeach
@@ -410,13 +471,13 @@
                 </div>
 
                 <!-- Selected Trainers Row (always visible) -->
-                <div id="selectedTrainersSummary" class="mb-5">
+                {{-- <div id="selectedTrainersSummary" class="mb-5">
                     <h3 class="section-title">SELECTED TRAINERS</h3>
                     <div class="row flex-nowrap overflow-auto" id="selectedTrainersList">
                         <!-- Selected trainers will be displayed here -->
                     </div>
                     <div id="noSelectedTrainersMsg" class="text-muted text-center" style="display:none;">No trainers selected. Click a trainer card to add.</div>
-                </div>
+                </div> --}}
 
                 <!-- Trainers Grid by Category -->
                 @foreach($trainersByCategory as $category => $trainers)
@@ -424,7 +485,7 @@
                     <h3 class="section-title">{{ $category }} TRAINERS</h3>
                     <div class="alert alert-info mb-4">
                         <i class="bi bi-info-circle me-2"></i>
-                        <strong>How to select trainers:</strong> Click on any trainer card to select them. Selected trainers will appear in the row above.
+                        <strong>Auto-selection:</strong> All trainers in this category are automatically selected when you choose this category. You can click individual trainer cards to deselect them if needed.
                     </div>
                     <div class="row">
                         @foreach($trainers as $trainer)
@@ -560,8 +621,22 @@
         </div>
     </div>
 
+    <!-- Loader Overlay -->
+    <div class="loader-overlay" id="loaderOverlay">
+        <div class="loader-content">
+            <div class="spinner-border text-primary mb-3" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5 class="text-dark mb-2">Submitting Enquiry...</h5>
+            <p class="text-muted mb-0">Please wait while we process your request.</p>
+        </div>
+    </div>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         // Category selection functionality
@@ -598,34 +673,11 @@
         let selectedTrainers = [];
         let selectedCategory = '';
 
-        // Always show selected trainers row, update message if empty
+        // Update selected trainers (hidden section, but still track selection)
         function updateSelectedTrainersDisplay() {
-            const container = document.getElementById('selectedTrainersList');
             const selectedTrainersInput = document.getElementById('selectedTrainersInput');
-            const noMsg = document.getElementById('noSelectedTrainersMsg');
-            if (selectedTrainers.length === 0) {
-                if (noMsg) noMsg.style.display = '';
-                container.innerHTML = '';
-                selectedTrainersInput.value = '';
-            } else {
-                if (noMsg) noMsg.style.display = 'none';
-                container.innerHTML = '';
-                selectedTrainers.forEach(trainer => {
-                    const trainerCard = `
-                        <div class="col-auto mb-2">
-                            <div class="trainer-card selected h-100 text-center p-2" style="min-width:120px;">
-                                <img src="${trainer.image}" class="rounded-circle mb-1" alt="Expert" width="50" height="50" style="object-fit: cover;">
-                                <div class="fw-bold small">${trainer.name}</div>
-                                <button class="btn btn-xs btn-outline-danger remove-selected-trainer mt-1" data-trainer-id="${trainer.id}">
-                                    <i class="bi bi-x"></i>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                    container.innerHTML += trainerCard;
-                });
-            }
             selectedTrainersInput.value = JSON.stringify(selectedTrainers);
+            
             // Enable/disable submit button based on trainer selection
             const submitBtn = document.getElementById('submitBtn');
             if (selectedTrainers.length > 0) {
@@ -635,14 +687,6 @@
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="bi bi-envelope me-2"></i>SAVE ENQUIRY';
             }
-            // Add event listeners to remove buttons
-            document.querySelectorAll('.remove-selected-trainer').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const trainerId = this.getAttribute('data-trainer-id');
-                    selectedTrainers = selectedTrainers.filter(trainer => trainer.id != trainerId);
-                    updateSelectedTrainersDisplay();
-                });
-            });
         }
 
         function attachTrainerCardHandlers() {
@@ -684,7 +728,25 @@
                 // Update the Selected Category field
                 document.getElementById('selectedCategoryDisplay').value = selectedCategory;
                 document.getElementById('selectedCategoryInput').value = selectedCategory;
-                // Enable the submit button if trainers are selected
+                
+                // Auto-select all trainers in the selected category
+                selectedTrainers = [];
+                selectedSection.querySelectorAll('.trainer-card').forEach(card => {
+                    const trainerId = card.getAttribute('data-trainer-id');
+                    const trainerName = card.getAttribute('data-trainer-name');
+                    const trainerImage = card.getAttribute('data-trainer-image');
+                    const trainerCategory = card.getAttribute('data-trainer-category');
+                    
+                    selectedTrainers.push({ 
+                        id: trainerId, 
+                        name: trainerName, 
+                        image: trainerImage, 
+                        category: trainerCategory 
+                    });
+                    card.classList.add('selected');
+                });
+                
+                // Update display and enable submit button
                 updateSelectedTrainersDisplay();
                 // Attach click handlers to trainer cards
                 attachTrainerCardHandlers();
@@ -693,6 +755,20 @@
 
         document.querySelectorAll('.category-radio').forEach(function(radio) {
             radio.addEventListener('change', showSelectedCategorySection);
+        });
+
+        // Make entire category card clickable
+        document.querySelectorAll('.category-selection-card').forEach(function(card) {
+            card.addEventListener('click', function(e) {
+                // Don't trigger if clicking on buttons
+                if (e.target.closest('.btn')) return;
+                
+                const radio = this.querySelector('.category-radio');
+                if (radio) {
+                    radio.checked = true;
+                    showSelectedCategorySection();
+                }
+            });
         });
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -758,12 +834,82 @@
             });
         });
 
+        // Show/Hide Loader functions
+        function showLoader() {
+            document.getElementById('loaderOverlay').style.display = 'flex';
+        }
+
+        function hideLoader() {
+            document.getElementById('loaderOverlay').style.display = 'none';
+        }
+
         // Form submission functionality
         const enquiryForm = document.getElementById('programEnquiryForm');
         if (enquiryForm) {
             enquiryForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Validate form
+                if (selectedTrainers.length === 0) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'No Trainers Selected',
+                        text: 'Please select at least one trainer before submitting the enquiry.',
+                        confirmButtonColor: '#F39231'
+                    });
+                    return;
+                }
+
                 // Always update hidden input before submit
                 document.getElementById('selectedTrainersInput').value = JSON.stringify(selectedTrainers);
+                
+                // Show loader
+                showLoader();
+                
+                // Submit form via AJAX
+                const formData = new FormData(this);
+                
+                fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    hideLoader();
+                    
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Enquiry Submitted Successfully!',
+                            text: data.message,
+                            confirmButtonColor: '#F39231',
+                            confirmButtonText: 'OK'
+                        }).then((result) => {
+                            // Redirect to program enquiry page and remove trainers from shortlist
+                            window.location.href = "{{ route('company.program_enquiry') }}";
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Submission Failed',
+                            text: data.message || 'An error occurred while submitting the enquiry.',
+                            confirmButtonColor: '#F39231'
+                        });
+                    }
+                })
+                .catch(error => {
+                    hideLoader();
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Network Error',
+                        text: 'An error occurred while submitting the enquiry. Please try again.',
+                        confirmButtonColor: '#F39231'
+                    });
+                });
             });
         }
 

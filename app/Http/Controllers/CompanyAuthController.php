@@ -136,6 +136,12 @@ class CompanyAuthController extends Controller
 
     public function addToList(Request $request, $trainerId) {
         $company = Auth::guard('company')->user();
+        
+        // Check if trainer is already in the list
+        if ($company->trainers()->where('trainer_id', $trainerId)->exists()) {
+            return response()->json(['success' => false, 'message' => 'Trainer is already in your list!']);
+        }
+        
         $company->trainers()->syncWithoutDetaching([$trainerId]);
         return response()->json(['success' => true, 'message' => 'Trainer added to shortlist!']);
     }
@@ -244,9 +250,13 @@ class CompanyAuthController extends Controller
             $trainerIds = array_column($selectedTrainers, 'id');
             $trainers = \App\Models\User::whereIn('id', $trainerIds)->with('city_info')->get();
             \Mail::to($adminEmail)->send(new \App\Mail\ProgramEnquiryAdminMail($company, $trainers, $details, $request->file('pdf')));
+            
+            // Remove selected trainers from company's shortlist
+            $company->trainers()->detach($trainerIds);
+            
             return response()->json([
                 'success' => true,
-                'message' => 'Program enquiry saved and email sent to admin successfully! Admin will review and contact the trainers.'
+                'message' => 'Program enquiry saved and email sent to admin successfully! Selected trainers have been removed from your shortlist.'
             ]);
         } catch (\Exception $e) {
             \Log::error('Enquiry email error: ' . $e->getMessage());
